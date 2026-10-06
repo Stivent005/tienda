@@ -1,11 +1,27 @@
 /* ADMINISTRACIÓN: productos, ofertas, pedidos, clientes, cupones, ajustes y respaldo */
 /* ---------- ADMINISTRACIÓN ---------- */
 function renderAdmin(){
+  /* __ADMIN_TABS_FIX_FINAL__ */
+  if(!window.__adminTabsFixFinal){
+    window.__adminTabsFixFinal=true;
+
+    document.addEventListener("click",function(e){
+      var b=e.target.closest("#panel [data-tab]");
+      if(!b)return;
+
+      e.preventDefault();
+
+      atab=b.dataset.tab;
+
+      renderAdmin();
+    });
+  }
+
   if(!authed){$("panel").innerHTML="";return}
   var pend=orders.filter(function(o){return estadoDe(o)==="Pendiente"}).length;
   var sales=orders.filter(function(o){return estadoDe(o)==="Pagado"||estadoDe(o)==="Entregado"}).reduce(function(a,o){return a+o.total},0);
   var h='<div class="stats">'+[[items.length,"Productos"],[items.filter(function(p){return p.offer}).length,"En oferta"],[items.filter(function(p){return p.active}).length,"Visibles"],[items.filter(function(p){return !ilim(p)&&(p.stock||0)<=3}).length,"Con poco stock"],[fmt.format(sales),"Ventas confirmadas"],[pend,"Pedidos pendientes"]].map(function(s){return '<div class="stat"><b>'+s[0]+'</b><span class="meta">'+s[1]+'</span></div>'}).join("")+'</div>';
-  h+='<div class="tabs">'+[["orders","Pedidos"+(pend?" ("+pend+")":"")],["customers","Clientes"],["loyalty","Puntos y ruleta"],["coupons","Cupones"],["pay","Pagos"],["settings","Ajustes"],["backup","Respaldo"]].map(function(t){return '<button class="chip" aria-pressed="'+(atab===t[0])+'" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join("")+'<button class="chip" data-x="newp">＋ Agregar producto</button><button class="chip" data-x="logout">Salir</button></div>';
+  h+='<div class="tabs">'+[["orders","Pedidos"+(pend?" ("+pend+")":"")],["customers","Clientes"],["loyalty","Puntos y ruleta"],["coupons","Cupones"],["pay","Pagos"],["settings","Ajustes"],["backup","Respaldo"]].map(function(t){return '<button class="chip" aria-pressed="'+(atab===t[0])+'" data-tab="'+t[0]+'">'+t[1]+'</button>'}).join("")+'<button class="chip" data-x="newp">&#65291; Agregar producto</button><button class="chip" data-x="logout">Salir</button></div>';
   if(!atab){$("panel").innerHTML=h;return}
   if(atab==="orders"){
     var F=[["Pendiente","Pendientes"],["Pagado","Por entregar"],["Entregado","Entregados"],["Cancelado","Cancelados"],["","Todos"]];
@@ -14,7 +30,7 @@ function renderAdmin(){
     if(ordersErr)h+='<div class="msg err">'+esc(ordersErr)+'</div>';
     h+='<div class="bar"><div class="chips" style="margin:0">'+F.map(function(f){return '<button class="chip" aria-pressed="'+(pedidoFiltro===f[0])+'" data-pf="'+f[0]+'">'+f[1]+' ('+cnt(f[0])+')</button>'}).join("")+'</div><span><button class="btn" id="orefresh">Actualizar</button> <button class="btn primary" id="onew">Registrar pedido</button></span></div>';
     var vis=orders.filter(function(o){return!pedidoFiltro||estadoDe(o)===pedidoFiltro});
-    h+=vis.length?'<div class="list">'+vis.map(orderRow).join("")+'</div>':'<div class="empty"><h2>'+(pedidoFiltro==="Pendiente"?"No tienes pedidos pendientes":"No hay pedidos aquí")+'</h2><p>'+(pedidoFiltro==="Pendiente"?"Cuando un cliente haga un pedido, aparecerá aquí para que confirmes su pago.":"Cambia el filtro para ver otros pedidos.")+'</p></div>';
+    h+=vis.length?'<div class="list">'+vis.map(orderRow).join("")+'</div>':'<div class="empty"><h2>'+(pedidoFiltro==="Pendiente"?"No tienes pedidos pendientes":"No hay pedidos aquí")+'</h2><p>'+(pedidoFiltro==="Pendiente"?"Cuando un cliente haga un pedido, aparecerí aquí para que confirmes su pago.":"Cambia el filtro para ver otros pedidos.")+'</p></div>';
     $("panel").innerHTML=h;
     $("onew").addEventListener("click",openOrder);
     $("orefresh").addEventListener("click",cargarPedidos);
@@ -24,7 +40,7 @@ function renderAdmin(){
   if(atab==="customers"){
     var mp={};orders.filter(function(o){return estadoDe(o)==="Pagado"||estadoDe(o)==="Entregado"}).forEach(function(o){var k=o.tel||o.nombre,c=mp[k]=mp[k]||{n:o.nombre,t:o.tel,d:o.dir,c:0,s:0};c.c++;c.s+=o.total;c.d=o.dir||o.punto||c.d});
     var cs=Object.keys(mp).map(function(k){return mp[k]}).sort(function(a,b){return b.s-a.s});
-    h+=cs.length?'<div class="list">'+cs.map(function(c){return '<div class="row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between"><div><b>'+esc(c.n)+'</b><div class="meta">'+esc(c.t)+' · '+esc(c.d)+'</div></div><div class="meta">'+c.c+' pedido(s)</div><b>'+fmt.format(c.s)+'</b></div>'}).join("")+'</div>':'<div class="empty"><h2>Aún no hay clientes</h2><p>Los clientes aparecen aquí cuando registras pedidos.</p></div>';
+    h+=cs.length?'<div class="list">'+cs.map(function(c){return '<div class="row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between"><div><b>'+esc(c.n)+'</b><div class="meta">'+esc(c.t)+' • '+esc(c.d)+'</div></div><div class="meta">'+c.c+' pedido(s)</div><b>'+fmt.format(c.s)+'</b></div>'}).join("")+'</div>':'<div class="empty"><h2>Aún no hay clientes</h2><p>Los clientes aparecen aquí cuando registras pedidos.</p></div>';
     $("panel").innerHTML=h;return;
   }
   if(atab==="coupons"){
@@ -42,12 +58,12 @@ function renderAdmin(){
   }
   if(atab==="pay"){
     var ms=metodos();
-    if(ms.some(function(m){return m.activo!==false&&((m.tipo==="transfer"&&!m.cuenta&&!m.qr)||(m.tipo==="link"&&!m.enlace))}))h+='<div class="msg err">Hay métodos activos sin configurar: no se mostrarán a tus clientes hasta que agregues su número, cuenta o enlace.</div>';
+    if(ms.some(function(m){return m.activo!==false&&((m.tipo==="transfer"&&!m.cuenta&&!m.qr)||(m.tipo==="link"&&!m.enlace))}))h+='<div class="msg err">Hay métodos activos sin configurar: no se mostrarín a tus clientes hasta que agregues su número, cuenta o enlace.</div>';
     h+='<div class="bar"><span class="meta">Elige cómo te pueden pagar tus clientes. Los cambios se ven al instante en el pago.</span><button class="btn primary" id="madd">Agregar método</button></div>';
     h+='<div class="list">'+ms.map(function(m,i){
       var falta=(m.tipo==="transfer"&&!m.cuenta&&!m.qr)||(m.tipo==="link"&&!m.enlace);
       var det=m.tipo==="efectivo"?"Contra entrega (efectivo)":m.tipo==="link"?"Enlace de pago en línea":"Cuenta o billetera: "+esc(m.cuenta||(m.qr?"solo QR":"—"));
-      return '<div class="row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center"><div><b>'+ico(m)+' '+esc(m.nombre)+'</b><span class="tag'+(m.activo!==false?' off':'')+'">'+(m.activo!==false?"Activo":"Apagado")+'</span><div class="meta">'+det+(falta?' · <span style="color:var(--danger)">Falta configurar</span>':'')+'</div></div><div class="acts" style="flex-wrap:wrap"><button class="btn sm" data-mv="-1" data-i="'+i+'" aria-label="Subir">▲</button><button class="btn sm" data-mv="1" data-i="'+i+'" aria-label="Bajar">▼</button><button class="btn sm" data-mt="'+i+'">'+(m.activo!==false?"Apagar":"Activar")+'</button><button class="btn sm" data-me="'+i+'">Editar</button><button class="btn sm danger" data-md="'+i+'">'+(pdel==="m"+i?"Confirmar":"Eliminar")+'</button></div></div>'}).join("")+'</div>';
+      return '<div class="row" style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center"><div><b>'+ico(m)+' '+esc(m.nombre)+'</b><span class="tag'+(m.activo!==false?' off':'')+'">'+(m.activo!==false?"Activo":"Apagado")+'</span><div class="meta">'+det+(falta?' • <span style="color:var(--danger)">Falta configurar</span>':'')+'</div></div><div class="acts" style="flex-wrap:wrap"><button class="btn sm" data-mv="-1" data-i="'+i+'" aria-label="Subir">Ôû▓</button><button class="btn sm" data-mv="1" data-i="'+i+'" aria-label="Bajar">Ôû╝</button><button class="btn sm" data-mt="'+i+'">'+(m.activo!==false?"Apagar":"Activar")+'</button><button class="btn sm" data-me="'+i+'">Editar</button><button class="btn sm danger" data-md="'+i+'">'+(pdel==="m"+i?"Confirmar":"Eliminar")+'</button></div></div>'}).join("")+'</div>';
     $("panel").innerHTML=h;
     var cp=function(){return metodos().map(function(x){return Object.assign({},x)})};
     $("madd").addEventListener("click",function(){openMetodo(-1)});
@@ -59,7 +75,7 @@ function renderAdmin(){
   }
   if(atab==="loyalty"){renderLoyalty(h);return}
   if(atab==="settings"){
-    h+='<div class="box" style="padding:0;max-width:560px"><label>Nombre de la tienda<input id="s-nombre"></label><label>Lema de bienvenida<input id="s-lema"></label><label>WhatsApp de contacto para tus clientes (con código de país, sin +)<input id="s-wa" inputmode="numeric"></label><div class="two"><label>Color principal<input id="s-color" type="color" style="height:42px;padding:4px"></label><label>Logo (opcional)<input id="s-logo" type="file" accept="image/*"></label></div><label class="chk"><input id="s-nologo" type="checkbox"> Quitar el logo actual</label><label>Clave de administración (solo se usa sin base de datos)<input id="s-clave"></label><label>Puntos de recogida sugeridos (uno por línea)<textarea id="s-puntos" rows="3" placeholder="Parque principal, sábados 3 pm"></textarea></label><div class="foot"><span class="meta" id="smsg"></span><button class="btn primary" id="ssave">Guardar ajustes</button></div></div>';
+    h+='<div class="box" style="padding:0;max-width:560px"><label>Nombre de la tienda<input id="s-nombre"></label><label>Lema de bienvenida<input id="s-lema"></label><label>WhatsApp de contacto para tus clientes (con código de país, sin +)<input id="s-wa" inputmode="numeric"></label><div class="two"><label>Color principal<input id="s-color" type="color" style="height:42px;padding:4px"></label><label>Logo (opcional)<input id="s-logo" type="file" accept="image/*"></label></div><label class="chk"><input id="s-nologo" type="checkbox"> Quitar el logo actual</label><label>Clave de administración (solo se usa sin base de datos)<input id="s-clave"></label><label>Puntos de recogida sugeridos (uno por línea)<textarea id="s-puntos" rows="3" placeholder="Parque principal, síbados 3 pm"></textarea></label><div class="foot"><span class="meta" id="smsg"></span><button class="btn primary" id="ssave">Guardar ajustes</button></div></div>';
     $("panel").innerHTML=h;
     $("s-nombre").value=cfg.nombre;$("s-wa").value=cfg.whatsapp;$("s-clave").value=cfg.claveAdmin;$("s-lema").value=cfg.lema||"";$("s-puntos").value=cfg.puntos||"";$("s-color").value=cfg.color||"#ff7a3d";newLogo=undefined;
     $("s-logo").addEventListener("change",function(){if(this.files[0])resizeImg(this.files[0],300,"image/png",function(u){newLogo=u;$("smsg").textContent="Logo listo. Guarda los ajustes."})});
@@ -76,7 +92,7 @@ function renderAdmin(){
     h+='<div class="box" style="padding:0"><p class="meta">Tus productos se guardan solo en este navegador. Para que los vea todo el mundo, copia este respaldo y pégalo en <b>DATOS_INICIALES</b> dentro del archivo (reemplazando las llaves vacías). Incluye tus productos y tus ajustes. También puedes pegar un respaldo aquí para restaurarlo.</p><textarea id="bk" rows="10" spellcheck="false">'+esc(JSON.stringify({config:(function(){var c=Object.assign({},cfg);delete c.claveAdmin;return c})(),productos:items}))+'</textarea><div class="foot"><button class="btn" id="bkcopy">Copiar respaldo</button><button class="btn primary" id="bkload">Restaurar desde el texto</button></div><div class="meta" id="bkmsg"></div></div>';
     $("panel").innerHTML=h;
     $("bkcopy").addEventListener("click",function(){$("bk").select();try{document.execCommand("copy");$("bkmsg").textContent="Copiado."}catch(e){$("bkmsg").textContent="Selecciona el texto y cópialo."}});
-    $("bkload").addEventListener("click",function(){try{var d=JSON.parse($("bk").value);var pr=Array.isArray(d)?d:d.productos;if(!Array.isArray(pr))throw 0;items=pr.map(limpiarProducto);if(d.config&&typeof d.config==="object"){var dc=Object.assign({},d.config);delete dc.supabase;delete dc.claveAdmin;cfg=Object.assign({},cfg,dc);guardarCfg()}persist();$("bkmsg").textContent="Restaurado: "+pr.length+" productos.";renderAdmin()}catch(e){$("bkmsg").textContent="El texto no es un respaldo válido."}});
+    $("bkload").addEventListener("click",function(){try{var d=JSON.parse($("bk").value);var pr=Array.isArray(d)?d:d.productos;if(!Array.isArray(pr))throw 0;items=pr.map(limpiarProducto);if(d.config&&typeof d.config==="object"){var dc=Object.assign({},d.config);delete dc.supabase;delete dc.claveAdmin;cfg=Object.assign({},cfg,dc);guardarCfg()}persist();$("bkmsg").textContent="Restaurado: "+pr.length+" productos.";renderAdmin()}catch(e){$("bkmsg").textContent="El texto no es un respaldo vílido."}});
     return;
   }
   $("panel").innerHTML=h;
@@ -85,7 +101,7 @@ function renderAdmin(){
 function openForm(p){
   editing=p||null;img=p&&p.image||"";
   var cats=[...new Set(items.map(function(x){return x.category}).filter(Boolean))];
-  $("dbox").innerHTML='<h2>'+(p?"Editar producto":"Nuevo producto")+'</h2><label>Tipo de producto<select id="f-tipo"><option value="fisico">Físico (se envía)</option><option value="virtual">Virtual (diamantes, códigos, servicios…)</option></select></label><label>Nombre<input id="f-name" maxlength="80"></label><label>Descripción<textarea id="f-desc" rows="3" maxlength="500"></textarea></label><div class="two"><label>Precio<input id="f-price" type="number" min="0" step="100"></label><label>Stock disponible<input id="f-stock" type="number" min="0" step="1"></label></div><div id="f-vbox" class="f" style="display:none"><p class="meta" style="margin:0">Al comprar, el cliente escribirá el ID y el nombre de su cuenta.</p><label class="chk"><input id="f-ilim" type="checkbox"> Stock ilimitado</label></div><label>Categoría<input id="f-cat" list="cl" maxlength="40"><datalist id="cl">'+cats.map(function(c){return '<option value="'+esc(c)+'">'}).join("")+'</datalist></label><div class="imgrow"><img class="thumb" id="f-thumb" alt=""><div><input id="f-file" type="file" accept="image/*"><div class="meta" id="f-imsg"></div></div></div><div class="two"><label class="chk"><input id="f-offer" type="checkbox"> Producto en oferta</label><label>Precio de oferta<input id="f-op" type="number" min="0" step="100"></label></div><label class="chk"><input id="f-active" type="checkbox"> Visible en la tienda</label><div class="err" id="ferr"></div><div class="foot"><button class="btn" data-x="close">Cancelar</button><button class="btn primary" data-x="save">Guardar</button></div>';
+  $("dbox").innerHTML='<h2>'+(p?"Editar producto":"Nuevo producto")+'</h2><label>Tipo de producto<select id="f-tipo"><option value="fisico">Físico (se envía)</option><option value="virtual">Virtual (diamantes, códigos, servicios…)</option></select></label><label>Nombre<input id="f-name" maxlength="80"></label><label>Descripción<textarea id="f-desc" rows="3" maxlength="500"></textarea></label><div class="two"><label>Precio<input id="f-price" type="number" min="0" step="100"></label><label>Stock disponible<input id="f-stock" type="number" min="0" step="1"></label></div><div id="f-vbox" class="f" style="display:none"><p class="meta" style="margin:0">Al comprar, el cliente escribirí el ID y el nombre de su cuenta.</p><label class="chk"><input id="f-ilim" type="checkbox"> Stock ilimitado</label></div><label>Categoría<input id="f-cat" list="cl" maxlength="40"><datalist id="cl">'+cats.map(function(c){return '<option value="'+esc(c)+'">'}).join("")+'</datalist></label><div class="imgrow"><img class="thumb" id="f-thumb" alt=""><div><input id="f-file" type="file" accept="image/*"><div class="meta" id="f-imsg"></div></div></div><div class="two"><label class="chk"><input id="f-offer" type="checkbox"> Producto en oferta</label><label>Precio de oferta<input id="f-op" type="number" min="0" step="100"></label></div><label class="chk"><input id="f-active" type="checkbox"> Visible en la tienda</label><div class="err" id="ferr"></div><div class="foot"><button class="btn" data-x="close">Cancelar</button><button class="btn primary" data-x="save">Guardar</button></div>';
   $("f-name").value=p?p.name:"";$("f-desc").value=p?p.description:"";$("f-price").value=p?p.price:"";$("f-stock").value=p?p.stock:"";
   $("f-cat").value=p?p.category:"";$("f-offer").checked=!!(p&&p.offer);$("f-op").value=p&&p.offerPrice?p.offerPrice:"";$("f-active").checked=p?p.active:true;
   $("f-tipo").value=p&&p.tipo||"fisico";$("f-ilim").checked=p?!!p.ilimitado:true;
@@ -131,11 +147,11 @@ function orderRow(o){
   if(e==="Pagado")b+='<button class="btn sm primary" data-oa="entregado" data-id="'+esc(o.id)+'">'+(solo?"Marcar recargado":"Marcar entregado")+'</button>';
   if(e==="Pendiente"||e==="Pagado")b+='<button class="btn sm danger" data-oa="cancelar" data-id="'+esc(o.id)+'">Cancelar pedido</button>';
   b+='<button class="btn sm danger" data-od="'+esc(o.id)+'">'+(pdel===o.id?"Confirmar":"Eliminar")+'</button>';
-  return '<div class="row order"><div class="line"><div><b>'+esc(o.nombre)+'</b> <span class="meta">'+esc(o.tel)+' · '+new Date(o.fecha).toLocaleString("es-CO")+' · #'+esc(String(o.id).slice(-6).toUpperCase())+'</span></div><span class="tag'+(e==="Pendiente"?" off":"")+'">'+esc(e)+'</span></div>'
+  return '<div class="row order"><div class="line"><div><b>'+esc(o.nombre)+'</b> <span class="meta">'+esc(o.tel)+' • '+new Date(o.fecha).toLocaleString("es-CO")+' • #'+esc(String(o.id).slice(-6).toUpperCase())+'</span></div><span class="tag'+(e==="Pendiente"?" off":"")+'">'+esc(e)+'</span></div>'
    +'<div>'+o.items.map(function(i){return esc(i.q)+" × "+esc(i.n)+(i.v?" (virtual)":"")}).join(", ")+'</div>'
    +(ent?'<div class="meta">'+ent+'</div>':'')
-   +(o.cuenta?'<div class="cuenta">Cuenta a recargar — ID: <b>'+esc(o.cuenta.id)+'</b> · Nombre: <b>'+esc(o.cuenta.nombre)+'</b></div>':'')
-   +'<div class="meta">Pago: '+esc(o.pago||"")+(o.referencia?' · Ref: '+esc(o.referencia):'')+(o.cupon?' · Cupón '+esc(o.cupon):'')+' · <b>'+fmt.format(o.total)+'</b></div>'
+   +(o.cuenta?'<div class="cuenta">Cuenta a recargar — ID: <b>'+esc(o.cuenta.id)+'</b> • Nombre: <b>'+esc(o.cuenta.nombre)+'</b></div>':'')
+   +'<div class="meta">Pago: '+esc(o.pago||"")+(o.referencia?' • Ref: '+esc(o.referencia):'')+(o.cupon?' • Cupón '+esc(o.cupon):'')+' • <b>'+fmt.format(o.total)+'</b></div>'
    +(safeImg(o.comprobante)?'<img class="comp" src="'+safeImg(o.comprobante)+'" alt="Comprobante de pago" title="Clic para ampliar">':'')
    +'<div class="acts" style="flex-wrap:wrap">'+b+'</div></div>';
 }
@@ -202,23 +218,23 @@ function loyLeer(){
 function cargarLoy(){
   Promise.all([Backend.leer("puntos","select=tel,puntos,total_ganado&order=puntos.desc&limit=50"),Backend.leer("premios","select=codigo,tel,nombre,usado,creado&order=creado.desc&limit=30")])
     .then(function(r){LOYDATA={clientes:r[0]||[],premios:r[1]||[]};renderAdmin()})
-    .catch(function(e){LOYDATA={clientes:[],premios:[]};LOYMSG="No se pudieron leer los puntos: "+e.message+" (¿ejecutaste schema_2_catalogo_puntos.sql?)";renderAdmin()});
+    .catch(function(e){LOYDATA={clientes:[],premios:[]};LOYMSG="No se pudieron leer los puntos: "+e.message+" (┬┐ejecutaste schema_2_catalogo_puntos.sql?)";renderAdmin()});
 }
 function renderLoyalty(h){
   if(!Backend.remote){$("panel").innerHTML=h+'<div class="msg">Los puntos y la ruleta necesitan la base de datos. Sigue TUTORIAL_BASE_DE_DATOS.md.</div>';return}
   if(!LOYED){var P=cfg.pts||{};LOYED={cada:Number(P.cada)||2000,obj:Number(P.objetivo)||50,r:(cfg.ruleta&&cfg.ruleta.length?cfg.ruleta:RULETA_BASE).map(function(x){return Object.assign({},x)})}}
   if(!LOYDATA){LOYDATA={clientes:[],premios:[],cargando:true};cargarLoy()}
   var tot=LOYED.r.reduce(function(a,p){return a+(p.peso>0?p.peso:0)},0);
-  h+='<div class="box" style="padding:0;max-width:760px"><p class="meta">Los clientes ganan <b>1 punto por cada</b> cierto valor pagado (se suman cuando confirmas el pago del pedido y se restan si lo cancelas). Al juntar los puntos del objetivo giran la ruleta; el sorteo lo hace la base de datos, no la página.</p>'
+  h+='<div class="box" style="padding:0;max-width:760px"><p class="meta">Los clientes ganan <b>1 punto por cada</b> cierto valor pagado (se suman cuando confirmas el pago del pedido y se restan si lo cancelas). Al juntar los puntos del objetivo giran la ruleta; el sorteo lo hace la base de datos, no la pígina.</p>'
    +'<div class="two"><label>Pesos por cada punto (COP)<input id="l-cada" type="number" min="100" step="100" value="'+esc(LOYED.cada)+'"></label><label>Puntos para cada giro<input id="l-obj" type="number" min="1" step="1" value="'+esc(LOYED.obj)+'"></label></div>'
-   +'<div class="meta">Premios de la ruleta (2 a 12). El "peso" define la probabilidad: más peso, más fácil de ganar.</div>'
-   +LOYED.r.map(function(p,i){return'<div class="row" data-lr="'+i+'" style="display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr auto;gap:6px;align-items:center"><input class="l-n" maxlength="30" placeholder="Nombre" value="'+esc(p.nombre)+'"><select class="l-t">'+TIPOS_PREMIO.map(function(t){return'<option value="'+t[0]+'"'+(p.tipo===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join("")+'</select><input class="l-v" type="number" min="0" placeholder="Valor" value="'+esc(p.valor)+'"><input class="l-p" type="number" min="0" placeholder="Peso" value="'+esc(p.peso)+'"><span class="meta">'+(tot>0?Math.round(Math.max(p.peso,0)*1000/tot)/10+"%":"—")+' <button class="btn sm danger" data-lx="'+i+'" aria-label="Quitar">✕</button></span></div>'}).join("")
+   +'<div class="meta">Premios de la ruleta (2 a 12). El "peso" define la probabilidad: mís peso, mís fícil de ganar.</div>'
+   +LOYED.r.map(function(p,i){return'<div class="row" data-lr="'+i+'" style="display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr auto;gap:6px;align-items:center"><input class="l-n" maxlength="30" placeholder="Nombre" value="'+esc(p.nombre)+'"><select class="l-t">'+TIPOS_PREMIO.map(function(t){return'<option value="'+t[0]+'"'+(p.tipo===t[0]?' selected':'')+'>'+t[1]+'</option>'}).join("")+'</select><input class="l-v" type="number" min="0" placeholder="Valor" value="'+esc(p.valor)+'"><input class="l-p" type="number" min="0" placeholder="Peso" value="'+esc(p.peso)+'"><span class="meta">'+(tot>0?Math.round(Math.max(p.peso,0)*1000/tot)/10+"%":"—")+' <button class="btn sm danger" data-lx="'+i+'" aria-label="Quitar">&#10003;</button></span></div>'}).join("")
    +'<div class="foot"><span class="meta" id="lmsg">'+esc(LOYMSG)+'</span><button class="btn" id="l-add">Agregar premio</button><button class="btn primary" id="l-save">Guardar</button></div></div>';
   h+='<div class="bar"><b>Clientes con puntos</b><button class="btn" id="l-ref">Actualizar</button></div>'
    +(LOYDATA.clientes.length?'<div class="list">'+LOYDATA.clientes.map(function(c){return'<div class="row line"><span>'+esc(c.tel)+'</span><span class="meta">'+esc(c.total_ganado)+' ganados</span><b>'+esc(c.puntos)+' pts</b></div>'}).join("")+'</div>':'<div class="empty"><p>'+(LOYDATA.cargando?"Cargando…":"Aún no hay clientes con puntos. Se suman al confirmar el pago de un pedido.")+'</p></div>')
-   +(LOYDATA.premios.length?'<div class="bar"><b>Últimos premios entregados</b></div><div class="list">'+LOYDATA.premios.map(function(p){return'<div class="row line"><span><b>'+esc(p.codigo)+'</b> <span class="meta">'+esc(p.nombre)+' · '+esc(p.tel)+'</span></span><span class="tag'+(p.usado?'':' off')+'">'+(p.usado?"Usado":"Sin usar")+'</span></div>'}).join("")+'</div>':'');
+   +(LOYDATA.premios.length?'<div class="bar"><b>Últimos premios entregados</b></div><div class="list">'+LOYDATA.premios.map(function(p){return'<div class="row line"><span><b>'+esc(p.codigo)+'</b> <span class="meta">'+esc(p.nombre)+' • '+esc(p.tel)+'</span></span><span class="tag'+(p.usado?'':' off')+'">'+(p.usado?"Usado":"Sin usar")+'</span></div>'}).join("")+'</div>':'');
   $("panel").innerHTML=h;
-  $("l-add").addEventListener("click",function(){loyLeer();if(LOYED.r.length>=12){LOYMSG="Máximo 12 premios.";}else LOYED.r.push({nombre:"",tipo:"pct",valor:5,peso:10});renderAdmin()});
+  $("l-add").addEventListener("click",function(){loyLeer();if(LOYED.r.length>=12){LOYMSG="Míximo 12 premios.";}else LOYED.r.push({nombre:"",tipo:"pct",valor:5,peso:10});renderAdmin()});
   $("l-ref").addEventListener("click",function(){loyLeer();LOYDATA=null;renderAdmin()});
   document.querySelectorAll("[data-lx]").forEach(function(b){b.addEventListener("click",function(){loyLeer();LOYED.r.splice(Number(b.dataset.lx),1);renderAdmin()})});
   document.querySelectorAll("[data-lr] input,[data-lr] select").forEach(function(el){el.addEventListener("change",function(){loyLeer();renderAdmin()})});

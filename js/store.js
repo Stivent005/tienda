@@ -1,8 +1,8 @@
-/* TIENDA: catálogo, carrito, cupones y registro del pedido.
-   Todos los textos que ve el cliente salen de js/textos.js (función T / TH). */
+﻿/* TIENDA: catÃ¡logo, carrito, cupones y registro del pedido.
+   Todos los textos que ve el cliente salen de js/textos.js (funciÃ³n T / TH). */
 /* ---------- TIENDA ---------- */
 function renderStore(){
-  if(ADMIN_PAGE&&!authed){$("app").innerHTML='<div class="empty"><h2>Panel de administración</h2><p>Inicia sesión para administrar tu tienda.</p></div>';updateCount();return}
+  if(ADMIN_PAGE&&!authed){$("app").innerHTML='<div class="empty"><h2>Panel de administraciÃ³n</h2><p>Inicia sesiÃ³n para administrar tu tienda.</p></div>';updateCount();return}
   var qv=$("q")?$("q").value.toLowerCase():"";
   var act=items.filter(function(p){return p.active||authed});
   var cats=[...new Set(act.map(function(p){return p.category}).filter(Boolean))].sort();
@@ -16,9 +16,9 @@ function renderStore(){
   if(act.some(function(p){return p.tipo==="virtual"}))h+='<div class="chips">'+[["","filtro.todos"],["fisico","filtro.fisicos"],["virtual","filtro.virtuales"]].map(function(t){return '<button class="chip" aria-pressed="'+(tipoF===t[0])+'" data-t="'+t[0]+'">'+esc(T(t[1]))+'</button>'}).join("")+'</div>';
   if(cats.length)h+='<div class="chips"><button class="chip" aria-pressed="'+(cat==="")+'" data-c="">'+esc(T("filtro.todo"))+'</button>'+cats.map(function(c){return '<button class="chip" aria-pressed="'+(cat===c)+'" data-c="'+esc(c)+'">'+esc(c)+'</button>'}).join("")+'</div>';
   if(!v.length&&!authed)h+='<div class="empty"><h2>'+esc(T(act.length?"vacio.sinResultados":"vacio.sinProductos"))+'</h2><p>'+esc(T(act.length?"vacio.sinResultadosDesc":"vacio.sinProductosDesc"))+'</p></div>';
-  else h+='<div class="grid">'+(authed?'<button class="card addcard" data-x="newp">＋ Agregar producto</button>':'')+v.map(function(p){
+  else h+='<div class="grid">'+(authed?'<button class="card addcard" data-x="newp">ï¼‹ Agregar producto</button>':'')+v.map(function(p){
     var off=p.offer&&p.offerPrice>0,out=agotado(p),im=safeImg(p.image),pid=esc(p.id);
-    return '<article class="card"'+(p.active?'':' style="opacity:.6"')+'><div class="pic">'+(im?'<img src="'+im+'" alt="'+esc(T("producto.fotoAlt",{nombre:p.name}))+'" loading="lazy">':(p.tipo==="virtual"?'✦':esc(T("producto.sinFoto"))))+(p.tipo==="virtual"?'<span class="badge virt">'+esc(T("producto.virtual"))+'</span>':'')+(p.active?'':'<span class="badge" style="background:#555;left:auto;right:10px">Oculto</span>')+(off?'<span class="badge">'+esc(T("producto.oferta"))+'</span>':'')+'</div><div class="info"><h3>'+esc(p.name)+'</h3><p>'+esc(p.description)+'</p><div class="price">'+(off?'<s>'+fmt.format(p.price)+'</s><b class="o">'+fmt.format(p.offerPrice)+'</b>':'<b>'+fmt.format(p.price)+'</b>')+'</div><button class="btn primary" data-add="'+pid+'"'+(out?' disabled':'')+'>'+esc(T(out?"producto.agotado":"producto.agregar"))+'</button>'+(authed?'<div class="acts admin-acts"><button class="btn sm" data-a="edit" data-id="'+pid+'">Editar</button><button class="btn sm" data-a="vis" data-id="'+pid+'">'+(p.active?"Ocultar":"Mostrar")+'</button><button class="btn sm danger" data-a="del" data-id="'+pid+'">'+(pdel===p.id?"Confirmar":"Eliminar")+'</button></div><div class="meta">Stock: '+(ilim(p)?"ilimitado":(Number(p.stock)||0))+'</div>':'')+'</div></article>'}).join("")+'</div>';
+    return '<article class="card"'+(p.active?'':' style="opacity:.6"')+'><div class="pic">'+(im?'<img src="'+im+'" alt="'+esc(T("producto.fotoAlt",{nombre:p.name}))+'" loading="lazy">':(p.tipo==="virtual"?'âœ¦':esc(T("producto.sinFoto"))))+(p.tipo==="virtual"?'<span class="badge virt">'+esc(T("producto.virtual"))+'</span>':'')+(p.active?'':'<span class="badge" style="background:#555;left:auto;right:10px">Oculto</span>')+(off?'<span class="badge">'+esc(T("producto.oferta"))+'</span>':'')+'</div><div class="info"><h3>'+esc(p.name)+'</h3><p>'+esc(p.description)+'</p><div class="price">'+(off?'<s>'+fmt.format(p.price)+'</s><b class="o">'+fmt.format(p.offerPrice)+'</b>':'<b>'+fmt.format(p.price)+'</b>')+'</div><button class="btn primary" data-add="'+pid+'"'+(out?' disabled':'')+'>'+esc(T(out?"producto.agotado":"producto.agregar"))+'</button>'+(authed?'<div class="acts admin-acts"><button class="btn sm" data-a="edit" data-id="'+pid+'">Editar</button><button class="btn sm" data-a="vis" data-id="'+pid+'">'+(p.active?"Ocultar":"Mostrar")+'</button><button class="btn sm danger" data-a="del" data-id="'+pid+'">'+(pdel===p.id?"Confirmar":"Eliminar")+'</button></div><div class="meta">Stock: '+(ilim(p)?"ilimitado":(Number(p.stock)||0))+'</div>':'')+'</div></article>'}).join("")+'</div>';
   $("app").innerHTML=h;$("sort").value=sort;$("sort").addEventListener("change",renderStore);updateCount();
 }
 function updateCount(){var n=0;for(var k in cart)n+=cart[k];if($("count"))$("count").textContent=n}
@@ -28,16 +28,16 @@ function total(){return subtotal()-discount()}
 function subtotal(){return lines().reduce(function(a,l){return a+eff(l.p)*l.n},0)}
 
 /* ---------- Carrito y pago ---------- */
-var chk={nombre:"",tel:"",modo:"dom",addr:"",punto:"",vid:"",vname:"",ref:"",pay:""},cupMsg="";
-function resetChk(){var sd=Cookies.ok("preferencias")?lsGet("tienda_datos",{}):{};chk={nombre:String(sd.n||""),tel:String(sd.t||""),modo:"dom",addr:"",punto:"",vid:"",vname:"",ref:"",pay:""};compImg="";cupMsg=""}
+var chk={nombre:"",tel:"",idJuego:"",modo:"dom",addr:"",punto:"",vid:"",vname:"",ref:"",pay:""},cupMsg="";
+function resetChk(){var sd=Cookies.ok("preferencias")?lsGet("tienda_datos",{}):{};chk={nombre:String(sd.n||""),tel:String(sd.t||""),idJuego:"",modo:"dom",addr:"",punto:"",vid:"",vname:"",ref:"",pay:""};compImg="";cupMsg=""}
 resetChk();
-function ico(m){return m.tipo==="efectivo"?"💵":m.tipo==="link"?"💳":"📲"}
+function ico(m){return m.tipo==="efectivo"?"ðŸ’µ":m.tipo==="link"?"ðŸ’³":"ðŸ“²"}
 function esV(l){return l.p.tipo==="virtual"}
 function disponibles(L){var hv=L.some(esV);return pagos().filter(function(m){return!(m.tipo==="efectivo"&&hv)&&!(m.tipo==="link"&&!safeUrl(m.enlace))&&!(m.tipo==="transfer"&&!m.cuenta&&!safeImg(m.qr))})}
-function stepper(n){return'<div class="steps">'+["paso.carrito","paso.datos","paso.pago"].map(function(k,i){return'<span class="stp'+(i+1===n?" on":"")+(i+1<n?" done":"")+'"><b>'+(i+1<n?"✓":i+1)+'</b>'+esc(T(k))+'</span>'}).join("")+'</div>'}
+function stepper(n){return'<div class="steps">'+["paso.carrito","paso.datos","paso.pago"].map(function(k,i){return'<span class="stp'+(i+1===n?" on":"")+(i+1<n?" done":"")+'"><b>'+(i+1<n?"âœ“":i+1)+'</b>'+esc(T(k))+'</span>'}).join("")+'</div>'}
 function validarDatos(L){
-  var hv=L.some(esV),hp=L.some(function(l){return!esV(l)}),f=[];
-  if(!chk.nombre.trim())f.push(T("falta.nombre"));if(!chk.tel.trim())f.push(T("falta.celular"));
+  var hv=L.some(esV),hp=L.some(function(l){return!esV(l)}),hff=L.some(function(l){return l.p.category==="diamantes"}),f=[];
+  if(!chk.nombre.trim())f.push(T("falta.nombre"));if(!chk.tel.trim())f.push(T("falta.celular"));if(hff&&!chk.idJuego.trim())f.push("ID de jugador de Free Fire");
   if(hp&&chk.modo==="dom"&&!chk.addr.trim())f.push(T("falta.direccion"));
   if(hp&&chk.modo==="punto"&&!chk.punto.trim())f.push(T("falta.punto"));
   if(hv&&!chk.vid.trim())f.push(T("falta.cuentaId"));if(hv&&!chk.vname.trim())f.push(T("falta.cuentaNombre"));
@@ -68,7 +68,7 @@ function drawCart(){
   var L=lines(),b=$("dbox"),hv=L.some(esV),hp=L.some(function(l){return!esV(l)});
   if(!L.length){b.innerHTML='<h2>'+esc(T("carrito.titulo"))+'</h2><p class="meta">'+esc(T("carrito.vacio"))+'</p><div class="foot"><button class="btn" data-x="close">'+esc(T("carrito.cerrar"))+'</button></div>';return}
   if(step==="cart"){
-    b.innerHTML=stepper(1)+'<h2>'+esc(T("carrito.titulo"))+'</h2>'+L.map(function(l){return'<div class="line"><div class="n"><b>'+esc(l.p.name)+'</b>'+(esV(l)?' <span class="tag">'+esc(T("producto.virtual"))+'</span>':'')+'<div class="meta">'+fmt.format(eff(l.p))+'</div></div><div class="qty"><button data-q="-1" data-id="'+esc(l.p.id)+'" aria-label="'+esc(T("carrito.quitar"))+'">−</button><span>'+l.n+'</span><button data-q="1" data-id="'+esc(l.p.id)+'" aria-label="'+esc(T("carrito.agregar"))+'">+</button></div></div>'}).join("")
+    b.innerHTML=stepper(1)+'<h2>'+esc(T("carrito.titulo"))+'</h2>'+L.map(function(l){return'<div class="line"><div class="n"><b>'+esc(l.p.name)+'</b>'+(esV(l)?' <span class="tag">'+esc(T("producto.virtual"))+'</span>':'')+'<div class="meta">'+fmt.format(eff(l.p))+'</div></div><div class="qty"><button data-q="-1" data-id="'+esc(l.p.id)+'" aria-label="'+esc(T("carrito.quitar"))+'">âˆ’</button><input class="qty-input" type="number" min="1" max="9999" value="'+l.n+'" data-qty="1" data-id="'+esc(l.p.id)+'"><button data-q="1" data-id="'+esc(l.p.id)+'" aria-label="'+esc(T("carrito.agregar"))+'">+</button></div></div>'}).join("")
      +'<div class="line"><input id="c-cup" maxlength="40" placeholder="'+esc(T("carrito.cupon"))+'" value="'+(coupon?esc(coupon.codigo):'')+'"><button class="btn" data-x="cup">'+esc(T("carrito.aplicar"))+'</button></div><div class="meta">'+esc(cupMsg)+'</div>'
      +(discount()>0?'<div class="line meta"><span>'+esc(T("carrito.subtotal"))+'</span><span>'+fmt.format(subtotal())+'</span></div><div class="line meta"><span>'+esc(T("carrito.descuento"))+'</span><span>-'+fmt.format(discount())+'</span></div>':'')
      +'<div class="line total"><span>'+esc(T("carrito.total"))+'</span><span>'+fmt.format(total())+'</span></div>'
@@ -76,8 +76,8 @@ function drawCart(){
      +'<div class="foot"><button class="btn" data-x="close">'+esc(T("carrito.seguir"))+'</button><button class="btn primary" data-x="to-datos"'+(Backend.ready?'':' disabled')+'>'+esc(T("carrito.continuar"))+'</button></div>';
   }else if(step==="datos"){
     var pts=(cfg.puntos||"").split("\n").map(function(x){return x.trim()}).filter(Boolean);
-    b.innerHTML=stepper(2)+'<h2>'+esc(T("datos.titulo"))+'</h2><div class="f"><input id="c-name" maxlength="80" placeholder="'+esc(T("datos.nombre"))+'" autocomplete="name" value="'+esc(chk.nombre)+'"><input id="c-phone" maxlength="20" placeholder="'+esc(T("datos.celular"))+'" inputmode="tel" autocomplete="tel" value="'+esc(chk.tel)+'"></div>'
-     +(hp?'<div class="meta">'+esc(T("datos.comoRecibir"))+'</div><div class="paygrid"><button class="paytile'+(chk.modo==="dom"?' on':'')+'" data-modo="dom"><span class="ico">🏠</span><b>'+esc(T("datos.domicilio"))+'</b></button><button class="paytile'+(chk.modo==="punto"?' on':'')+'" data-modo="punto"><span class="ico">📍</span><b>'+esc(T("datos.recoger"))+'</b></button></div>'
+    b.innerHTML=stepper(2)+'<h2>'+esc(T("datos.titulo"))+'</h2><div class="f"><input id="c-name" maxlength="80" placeholder="'+esc(T("datos.nombre"))+'" autocomplete="name" value="'+esc(chk.nombre)+'"><input id="c-phone" maxlength="20" placeholder="'+esc(T("datos.celular"))+'" inputmode="tel" autocomplete="tel" value="'+esc(chk.tel)+'"></div>' +(L.some(function(l){return l.p.category==="diamantes"})?'<div class="f"><input id="c-ffid" maxlength="20" inputmode="numeric" placeholder="ID de jugador de Free Fire" value="'+esc(chk.idJuego)+'"></div>':'')
+     +(hp?'<div class="meta">'+esc(T("datos.comoRecibir"))+'</div><div class="paygrid"><button class="paytile'+(chk.modo==="dom"?' on':'')+'" data-modo="dom"><span class="ico">ðŸ </span><b>'+esc(T("datos.domicilio"))+'</b></button><button class="paytile'+(chk.modo==="punto"?' on':'')+'" data-modo="punto"><span class="ico">ðŸ“</span><b>'+esc(T("datos.recoger"))+'</b></button></div>'
         +(chk.modo==="dom"?'<textarea id="c-addr" rows="2" maxlength="300" placeholder="'+esc(T("datos.direccion"))+'">'+esc(chk.addr)+'</textarea>':'<input id="c-punto" maxlength="150" list="c-puntos" placeholder="'+esc(T("datos.punto"))+'" value="'+esc(chk.punto)+'"><datalist id="c-puntos">'+pts.map(function(x){return'<option value="'+esc(x)+'">'}).join("")+'</datalist>'):'')
      +(hv?'<div class="meta">'+esc(T("datos.cuentaTitulo"))+'</div><div class="f"><input id="c-vid" maxlength="60" placeholder="'+esc(T("datos.cuentaId"))+'" value="'+esc(chk.vid)+'"><input id="c-vname" maxlength="80" placeholder="'+esc(T("datos.cuentaNombre"))+'" value="'+esc(chk.vname)+'"></div><p class="meta">'+esc(T("datos.cuentaAviso"))+'</p>':'')
      +'<div class="err" id="err"></div><div class="foot"><button class="btn" data-x="back-cart">'+esc(T("datos.volver"))+'</button><button class="btn primary" data-x="to-pago">'+esc(T("carrito.continuar"))+'</button></div>';
@@ -92,12 +92,12 @@ function drawCart(){
 }
 function sendOrder(){
   if(!Backend.ready)return;
-  var L=lines(),hv=L.some(esV),hp=L.some(function(l){return!esV(l)});
+  var L=lines(),hv=L.some(esV),hp=L.some(function(l){return!esV(l)}),hff=L.some(function(l){return l.p.category==="diamantes"});
   var m=disponibles(L).find(function(x){return x.id===chk.pay}),f=validarDatos(L);
   if(!m)f.push(T("falta.formaPago"));else if(m.tipo!=="efectivo"&&!chk.ref.trim()&&!compImg)f.push(T("falta.referencia"));
   if(f.length){$("err").textContent=T("falta.prefijo",{lista:f.join(", ")});return}
-  var o={id:uid(),fecha:Date.now(),estado:"Pendiente",nombre:chk.nombre.trim(),tel:chk.tel.trim(),
-    items:L.map(function(l){return{id:l.p.id,n:l.p.name,q:l.n,pr:eff(l.p),v:esV(l)}}),
+  var o={id:uid(),fecha:Date.now(),estado:"Pendiente",nombre:chk.nombre.trim(),tel:chk.tel.trim(),idJuego:hff?chk.idJuego.trim():"",
+    items:L.map(function(l){return{id:l.p.id,n:l.p.name,q:l.n,pr:eff(l.p),v:esV(l),puntos:l.p.puntosPersonalizados?Math.max(0,Math.floor(Number(l.p.puntosCompra)||0)):null}}),
     subtotal:subtotal(),descuento:discount(),cupon:coupon?coupon.codigo:"",total:total(),
     pago:m.nombre,pagoId:m.id,referencia:chk.ref.trim(),comprobante:m.tipo==="efectivo"?"":compImg,
     dir:hp&&chk.modo==="dom"?chk.addr.trim():"",punto:hp&&chk.modo==="punto"?chk.punto.trim():"",
@@ -106,7 +106,7 @@ function sendOrder(){
   Backend.crear(o).then(function(){
     recordarDatos(o.nombre,o.tel);cart={};coupon=null;resetChk();lsSet("tienda_carrito",cart);step="cart";renderStore();
     var num='<b>#'+esc(o.id.slice(-6).toUpperCase())+'</b>',wa=String(cfg.whatsapp||"").replace(/\D/g,"");
-    $("dbox").innerHTML='<div class="okmark">✓</div><h2>'+esc(T("ok.titulo"))+'</h2><p>'+TH(m.tipo==="efectivo"?"ok.cuerpoEfectivo":"ok.cuerpoPago",{num:num})+'</p>'
+    $("dbox").innerHTML='<div class="okmark">âœ“</div><h2>'+esc(T("ok.titulo"))+'</h2><p>'+TH(m.tipo==="efectivo"?"ok.cuerpoEfectivo":"ok.cuerpoPago",{num:num})+'</p>'
       +(hv?'<p class="meta">'+esc(T("ok.virtual"))+'</p>':'')+ptsAviso(o.total)
       +(Backend.remote?'':'<p class="err">'+esc(T("ok.pruebaLocal"))+'</p>')
       +(wa?'<p class="meta">'+TH("ok.dudas",{enlace:'<a href="https://wa.me/'+wa+'" target="_blank" rel="noopener noreferrer">'+esc(T("ok.dudasEnlace"))+'</a>'})+'</p>':'')
@@ -124,3 +124,8 @@ function applyCoupon(){
     if(r&&(r.tipo==="pct"||r.tipo==="fijo")&&Number(r.valor)>0)fin({codigo:c,tipo:r.tipo,valor:Number(r.valor),activo:true},T("carrito.cuponOk"));else fin(null,T("carrito.cuponNo"));
   }).catch(function(){fin(null,T("carrito.cuponNo"))});
 }
+
+
+
+
+

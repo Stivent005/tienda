@@ -1,5 +1,17 @@
-/* ARRANQUE: eventos globales e inicio de la aplicación */
+﻿/* ARRANQUE: eventos globales e inicio de la aplicaciÃ³n */
 /* ---------- Eventos ---------- */
+document.addEventListener("change",function(e){
+  var el=e.target;
+  if(!el.matches("input[data-qty]"))return;
+  var id=el.dataset.id;
+  var n=Math.floor(Number(el.value));
+  if(!Number.isFinite(n)||n<1)n=1;
+  if(n>9999)n=9999;
+  cart[id]=n;
+  lsSet("tienda_carrito",cart);
+  updateCount();
+  drawCart();
+});
 document.addEventListener("click",function(e){
   if(e.target.classList&&e.target.classList.contains("comp")){e.target.classList.toggle("big");return}
   var t=e.target.closest("button");if(!t)return;var d=t.dataset;
@@ -33,15 +45,17 @@ document.addEventListener("click",function(e){
 });
 if($("adminlink"))$("adminlink").addEventListener("click",function(){if(!authed)askPin()});
 renderAll();
-/* Arranque: la tienda lee el catálogo de la base de datos; el panel (admin.html) pide sesión. */
+/* Arranque: la tienda lee el catÃ¡logo de la base de datos; el panel (admin.html) pide sesiÃ³n. */
 if(ADMIN_PAGE){
   if(Backend.remote&&Backend.restore()){authed=true;renderAll();cargarCatalogo().then(cargarPedidos).catch(function(){authed=false;Backend.logout();renderAll();askPin()})}
   else askPin();
 }else if(REMOTO)cargarCatalogo().catch(function(){});
 
-/* Con base de datos en línea, revisa cada 30 s si llegaron pedidos nuevos */
+/* Con base de datos en lÃ­nea, revisa cada 30 s si llegaron pedidos nuevos */
 setInterval(function(){if(ADMIN_PAGE&&authed&&Backend.remote&&(atab==="orders"||atab==="")&&!$("dlg").open)cargarPedidos()},30000);
 
 /* Guarda lo que el cliente escribe mientras avanza por los pasos del pago */
-var CHKMAP={"c-name":"nombre","c-phone":"tel","c-addr":"addr","c-punto":"punto","c-vid":"vid","c-vname":"vname","c-ref":"ref"};
+var CHKMAP={"c-name":"nombre","c-phone":"tel","c-ffid":"idJuego","c-addr":"addr","c-punto":"punto","c-vid":"vid","c-vname":"vname","c-ref":"ref"};
 $("dbox").addEventListener("input",function(e){var k=CHKMAP[e.target.id];if(k)chk[k]=e.target.value});
+
+
