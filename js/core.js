@@ -42,7 +42,7 @@ function metodos(){return cfg.metodos||metodosBase()}
 function pagos(){return metodos().filter(function(m){return m.activo!==false})}
 var cart=lsGet("tienda_carrito",{});
 var orders=(cfg.supabase&&cfg.supabase.url)?[]:lsGet("tienda_pedidos",[]),coupon=null,newLogo,compImg="",pedidoFiltro="Pendiente",ordersErr="";
-function applyTheme(){var c=cfg.color||"#ff7a3d",r=document.documentElement.style,n=parseInt(c.slice(1),16),l=0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255);r.setProperty("--accent",c);r.setProperty("--on-accent",l>150?"#111":"#fff")}
+function applyTheme(){var c=cfg.color||"#22d3ee",r=document.documentElement.style,n=parseInt(c.slice(1),16),l=0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255);r.setProperty("--accent",c);r.setProperty("--on-accent",l>150?"#111":"#fff")}
 applyTheme();
 function resizeImg(f,max,type,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL(type,0.8))};im.src=r.result};r.readAsDataURL(f)}
 var authed=false,cat="",tipoF="",atab="",editing=null,img="",pdel=null,step="cart",pay="contra";

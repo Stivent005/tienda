@@ -24,19 +24,19 @@
 .stp{display:flex;align-items:center;gap:6px}
 .stp b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid var(--line);font-size:.78rem}
 .stp.on{color:var(--text);font-weight:700}
-.stp.on b{background:var(--accent);color:var(--on-accent);border-color:var(--accent);box-shadow:0 0 10px rgba(255,122,61,.5)}
+.stp.on b{background:var(--accent);color:var(--on-accent);border-color:var(--accent);box-shadow:0 0 10px rgba(34,211,238,.5)}
 .stp.done b{background:var(--line);color:var(--text)}
 .paygrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
 .paytile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border:1px solid var(--line);border-radius:14px;background:var(--bg);cursor:pointer;text-align:center;font:inherit;color:var(--text)}
 .paytile .ico{font-size:1.6rem}
 .paytile:hover{border-color:var(--accent)}
-.paytile.on{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 1px var(--accent),0 0 16px rgba(255,122,61,.35)}
+.paytile.on{border-color:var(--accent);background:var(--surface);box-shadow:0 0 0 1px var(--accent),0 0 16px rgba(34,211,238,.35)}
 .paybox{border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px;background:var(--bg)}
 .acct{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:1.25rem;font-weight:700;letter-spacing:.02em}
 .qr{width:170px;max-width:60%;border-radius:12px;background:#fff;padding:6px;justify-self:center}
 .paytotal{display:flex;justify-content:space-between;align-items:baseline;padding:10px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line)}
 .paytotal b{font-size:1.6rem;color:var(--offer)}
-.okmark{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;background:linear-gradient(135deg,#f24a2e,#d81b78);color:#fff;box-shadow:0 0 22px rgba(242,74,46,.55)}
+.okmark{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:1.8rem;background:linear-gradient(135deg,#f24a2e,#8b5cf6);color:#fff;box-shadow:0 0 22px rgba(139,92,246,.55)}
 .box textarea{width:100%}
 /* Puntos, ruleta y cookies */
 .pbar{height:10px;border-radius:99px;background:var(--bg);border:1px solid var(--line);overflow:hidden}
